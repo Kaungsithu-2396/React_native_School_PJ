@@ -54,6 +54,8 @@ export default function ModifyHike({ navigation }) {
     const [length, setLength] = useState("");
 
     const retrieveData = () => {
+        console.log(selectedEl);
+
         db.transaction((txn) => {
             txn.executeSql(
                 `select * from m_Hike where id=?`,
@@ -91,7 +93,7 @@ export default function ModifyHike({ navigation }) {
                     }
                     setSelectedId(dataCol.indexOf(parking));
                     setDate(new Date(date));
-
+                    setSelectedEl(selectedEl);
                     switch (parking) {
                         case "Yes": {
                             setSelectedId(0);
@@ -135,8 +137,6 @@ export default function ModifyHike({ navigation }) {
         ]);
     };
     const updateHike = () => {
-        console.log("date", date + "");
-
         Alert.alert(
             "Confirmation",
             `Are you sure to update this record?\n
@@ -317,12 +317,20 @@ export default function ModifyHike({ navigation }) {
                             </Text>
                         </TouchableOpacity>
                     </View>
+                 
                 </ScrollView>
             </KeyboardAvoidingView>
         </>
     );
 }
 const styles = StyleSheet.create({
+    searchBtn: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "green",
+        padding: 10,
+    },
     btnCol: {
         flex: 1,
         justifyContent: "center",

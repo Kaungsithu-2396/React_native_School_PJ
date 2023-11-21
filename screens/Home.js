@@ -59,7 +59,7 @@ export default function Home({ navigation }) {
                 `create table if not exists m_Hike (id integer primary key autoincrement,name text,date text,descritpion text,parking text,location text,pitfall text,difficulty text,length text)`,
                 [],
                 (tx, result) => {
-                    alert("success");
+                    console.log("table create success!");
                 },
                 (tx, error) => {
                     alert("fail create table");
@@ -74,7 +74,7 @@ export default function Home({ navigation }) {
                 "INSERT INTO m_Hike(name, date, descritpion, parking, location, pitfall, difficulty, length) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                 [
                     name,
-                    date + "",
+                    date.toISOString(),
                     description,
                     dataCol[selectedId],
                     location,
@@ -110,11 +110,9 @@ export default function Home({ navigation }) {
                 Description:${description}
                 Parking Availability:${dataCol[selectedId]}\n
                 Difficulty:${selectedEl}\n
-                Date:${
-                    (new Date(date).getDate(),
-                    new Date(date).getMonth() + 1,
-                    new Date(date).getFullYear())
-                }
+                Date:${date.getDate()}.${
+                    date.getMonth() + 1
+                }.${date.getFullYear()}
                 Length:${length},
                 Pitfalls:${pitfall}
             `,
@@ -123,6 +121,14 @@ export default function Home({ navigation }) {
                         text: "Yes",
                         onPress: () => {
                             addToDb();
+                            setDate(new Date());
+                            setDescription("");
+                            setSelectedEl("");
+                            setLength("");
+                            setLocation("");
+                            setName("");
+                            setSelectedId("");
+                            setPitfall("");
                         },
                     },
                     {
@@ -245,12 +251,25 @@ export default function Home({ navigation }) {
                             </Text>
                         </TouchableOpacity>
                     </View>
+                    <TouchableOpacity
+                        style={styles.searchBtn}
+                        onPress={() => navigation.navigate("Search")}
+                    >
+                        <Text style={{ color: "white" }}>Search</Text>
+                    </TouchableOpacity>
                 </ScrollView>
             </KeyboardAvoidingView>
         </>
     );
 }
 const styles = StyleSheet.create({
+    searchBtn: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "green",
+        padding: 10,
+    },
     btnCol: {
         flex: 1,
         justifyContent: "center",

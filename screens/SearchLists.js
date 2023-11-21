@@ -1,56 +1,69 @@
-import { View, Text, Alert, TouchableOpacity, ScrollView } from "react-native";
-import React, { useEffect, useState } from "react";
+import { View, Text, TouchableOpacity } from "react-native";
+import React, { useState } from "react";
+import { ScrollView } from "react-native";
 import { StyleSheet } from "react-native";
+import { TextInput } from "react-native-paper";
 import * as SQLite from "expo-sqlite";
-export default function ShowLists({ navigation }) {
-    const [hikeList, setHikeList] = useState([]);
+export default function SearchLists({ navigation }) {
+    const [searchKey, setSearchKey] = useState("");
+    const [result, setResult] = useState([]);
     const db = SQLite.openDatabase("m_Hike");
-    let temp = [];
-
-    useEffect(() => {
-        showHikeLists();
-    }, []);
-    const showHikeLists = () => {
+    const searchHikeLists = () => {
         db.transaction((txn) => {
             txn.executeSql(
-                "select * from m_Hike",
-                [],
+                "select * from m_Hike where date LIKE ? OR descritpion LIKE ? OR difficulty LIKE ? OR length LIKE ? OR location LIKE ? OR name LIKE ? OR parking LIKE ? OR pitfall LIKE ?",
+                [
+                    `%${searchKey}%`,
+                    `%${searchKey}%`,
+                    `%${searchKey}%`,
+                    `%${searchKey}%`,
+                    `%${searchKey}%`,
+                    `%${searchKey}%`,
+                    `%${searchKey}%`,
+                    `%${searchKey}%`,
+                ],
                 (tx, result) => {
-                    console.log(result.rows._array, "show");
-
+                    let tempArr = [];
                     for (item in result.rows._array) {
-                        temp.push(result.rows._array[item]);
+                        tempArr.push(result.rows._array[item]);
                     }
-                    setHikeList(temp);
-
-                    // Check if hikeList has at least one element before accessing date
-                    if (hikeList.length > 0) {
-                        console.log(hikeList[0].date, "from list");
-                    }
+                    setResult(tempArr);
                 },
                 (tx, error) => {
-                    console.log("fail");
+                    console.log(error);
                 }
             );
         });
     };
-
+    const searchLists = () => {
+        searchHikeLists();
+    };
     return (
         <>
-            <View style={styles.container}>
-                <Text style={{ fontSize: 20, fontWeight: "bold", margin: 10 }}>
-                    Hike Lists - ({hikeList.length})
-                </Text>
+            <View>
+                <Text style={styles.heading}>Search Form</Text>
             </View>
-
+            <View style={styles.searchBarCol}>
+                <TextInput
+                    placeholder="Search"
+                    style={styles.inputBox}
+                    autoFocus={true}
+                    value={searchKey}
+                    onChangeText={setSearchKey}
+                />
+                {/* <View style={}> */}
+                <TouchableOpacity style={styles.btn} onPress={searchLists}>
+                    <Text style={{ color: "white", textAlign: "center" }}>
+                        Search
+                    </Text>
+                </TouchableOpacity>
+                {/* </View> */}
+            </View>
             <ScrollView>
-                {!hikeList.length == 0 ? (
-                    hikeList.map((el) => {
+                {!result.length == 0 ? (
+                    result.map((el) => {
                         return (
                             <TouchableOpacity
-                                onPress={() =>
-                                    navigation.navigate("Modify", { id: el.id })
-                                }
                                 key={el.id}
                                 style={styles.listCol}
                             >
@@ -136,7 +149,38 @@ export default function ShowLists({ navigation }) {
         </>
     );
 }
+
 const styles = StyleSheet.create({
+    searchBarCol: {
+        marginVertical: 20,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        alignContent: "center",
+        flexDirection: "row",
+        gap: 10,
+    },
+    btnView: {
+        width: "30%",
+        marginLeft: "30%",
+        //  marginTop: 10,
+    },
+    btn: {
+        textAlign: "center",
+        backgroundColor: "green",
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        borderRadius: 10,
+    },
+    heading: {
+        textAlign: "center",
+        padding: 10,
+        fontSize: 20,
+        fontWeight: "bold",
+    },
+    inputBox: {
+        width: "60%",
+    },
     line: {
         backgroundColor: "black",
         borderBlockColor: "white",
